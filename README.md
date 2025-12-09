@@ -31,6 +31,39 @@ Optional tools:
 
 ---
 
+## Steps to Run Locally
+Clone the repository
+
+bash
+git clone https://github.com/your-org/hugly-portal.git
+cd hugly-portal
+Install dependencies
+
+bash
+npm install
+Set up the database
+
+Ensure Postgres is running locally or via Docker.
+
+Create the database:
+
+bash
+createdb hugly_portal
+Generate Prisma client
+
+bash
+npx prisma generate
+Run migrations
+
+bash
+npx prisma migrate dev --name init
+Start the development server
+
+bash
+npm run dev
+Open the app Visit http://localhost:3000 in your browser.
+---
+
 ## ⚙️ Environment Variables
 
 Create a `.env` file in the project root with the following:
@@ -49,4 +82,5 @@ JWT_ACCESS_SECRET=your_access_secret_here
 JWT_REFRESH_SECRET=your_refresh_secret_here
 
 # Cookie domain
+
 COOKIE_DOMAIN=localhost
