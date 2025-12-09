@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { registerSchema } from '@/validation/authSchemas';
-import { hashPassword } from '@/lib/password';
-import { signAccess, signRefresh } from '@/lib/jwt';
-import { setAuthCookies } from '@/lib/cookies';
+import { prisma } from '@/src/lib/prisma';
+import { registerSchema } from '@/src/validation/authSchemas';
+import { hashPassword } from '@/src/lib/password';
+import { signAccess, signRefresh } from '@/src/lib/jwt';
+import { setAuthCookies } from '@/src/lib/cookies';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,12 +11,18 @@ export async function POST(req: NextRequest) {
     const data = registerSchema.parse(body);
 
     if (!data.acceptedTerms) {
-      return NextResponse.json({ code: 'TERMS_NOT_ACCEPTED', message: 'You must accept the terms' }, { status: 400 });
+      return NextResponse.json(
+        { code: 'TERMS_NOT_ACCEPTED', message: 'You must accept the terms' },
+        { status: 400 }
+      );
     }
 
     const existing = await prisma.user.findUnique({ where: { email: data.email } });
     if (existing) {
-      return NextResponse.json({ code: 'EMAIL_IN_USE', message: 'Email already registered' }, { status: 409 });
+      return NextResponse.json(
+        { code: 'EMAIL_IN_USE', message: 'Email already registered' },
+        { status: 409 }
+      );
     }
 
     const passwordHash = await hashPassword(data.password);
@@ -42,16 +48,25 @@ export async function POST(req: NextRequest) {
     });
 
     await prisma.auditLog.create({
-      data: { userId: user.id, action: 'REGISTER', ip: req.ip, userAgent: req.headers.get('user-agent') }
+      data: {
+        userId: user.id,
+        action: 'REGISTER',
+        ip: req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown",
+        userAgent: req.headers.get("user-agent")
+      }
     });
 
     const access = signAccess({ sub: user.id, email: user.email });
     const refresh = signRefresh({ sub: user.id, email: user.email });
 
-    const res = NextResponse.json({ message: 'Registered', user: { id: user.id, email: user.email } }, { status: 201 });
+    const res = NextResponse.json(
+      { message: 'Registered', user: { id: user.id, email: user.email } },
+      { status: 201 }
+    );
     setAuthCookies(res, access, refresh);
     return res;
   } catch (err: any) {
+    console.error("REGISTER ERROR:", err);
     const message = err?.message || 'Invalid request';
     return NextResponse.json({ code: 'INVALID', message }, { status: 400 });
   }

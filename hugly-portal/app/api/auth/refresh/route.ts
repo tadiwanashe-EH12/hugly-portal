@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyRefresh, signAccess, signRefresh } from '@/lib/jwt';
-import { setAuthCookies } from '@/lib/cookies';
+import { verifyRefresh, signAccess, signRefresh } from '@/src/lib/jwt';
+import { setAuthCookies } from '@/src/lib/cookies';
 
 export async function POST(req: NextRequest) {
   try {
