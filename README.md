@@ -32,7 +32,7 @@ Optional tools:
 ---
 
 
-Steps to Run Locally
+## Steps to Run Locally
 Clone the repository
 
 bash
@@ -65,7 +65,7 @@ npm run dev
 Open the app Visit http://localhost:3000 in your browser.
 
 
-
+---
 
 ## ⚙️ Environment Variables
 
